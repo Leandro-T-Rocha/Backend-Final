@@ -33,42 +33,63 @@ namespace Biblioteca.Controllers
         [HttpGet]
         public ActionResult<List<Livro>> GetLivros()
         {
-            return Ok(livrosDisponiveis);  // Retorna a lista completa de livros
+            return Ok(livrosDisponiveis);
         }
 
         // GET: api/biblioteca/{id}
-        [HttpGet("{id:int}")]  // Garante que o id seja um número inteiro
+        [HttpGet("{id:int}")]
         public ActionResult<Livro> GetLivroById(int id)
         {
-            var livro = livrosDisponiveis.FirstOrDefault(l => l.Id == id);  // Busca o livro pelo ID
+            var livro = livrosDisponiveis.FirstOrDefault(l => l.Id == id);
             if (livro == null)
             {
-                return NotFound();  // Retorna NotFound caso não encontre o livro
+                return NotFound();
             }
-            return Ok(livro);  // Retorna o livro encontrado
+            return Ok(livro);
         }
 
         // POST: api/biblioteca/locar/{id}
-        [HttpPost("locar/{id:int}")]  // A rota é mais específica com "locar"
+        [HttpPost("locar/{id:int}")]
         public ActionResult LocarLivro(int id, Locacao novaLocacao)
         {
-            var livro = livrosDisponiveis.FirstOrDefault(l => l.Id == id);  // Busca o livro
+            var livro = livrosDisponiveis.FirstOrDefault(l => l.Id == id);
             if (livro == null)
             {
-                return NotFound();  // Retorna NotFound caso o livro não seja encontrado
+                return NotFound();
             }
 
             if (livro.QuantidadeDisponivel <= 0)
             {
-                return BadRequest("O livro não está disponível.");  // Retorna BadRequest se não houver livros disponíveis
+                return BadRequest("O livro não está disponível.");
             }
 
-            livro.QuantidadeDisponivel--;  // Atualiza a quantidade do livro
-            novaLocacao.Id = livro.Locacoes.Count + 1;  // Atribui um ID à nova locação
-
-            livro.Locacoes.Add(novaLocacao);  // Adiciona a locação
+            livro.QuantidadeDisponivel--;
+            novaLocacao.Id = livro.Locacoes.Count + 1;
+            livro.Locacoes.Add(novaLocacao);
 
             return Ok(new { Message = "Livro alugado com sucesso!", Livro = livro, Locacao = novaLocacao });
+        }
+
+        // POST: api/biblioteca/devolver/{id}
+        [HttpPost("devolver/{id:int}")]
+        public ActionResult DevolverLivro(int id, [FromBody] int locacaoId)
+        {
+            var livro = livrosDisponiveis.FirstOrDefault(l => l.Id == id);
+            if (livro == null)
+            {
+                return NotFound("Livro não encontrado.");
+            }
+
+            var locacao = livro.Locacoes.FirstOrDefault(l => l.Id == locacaoId);
+            if (locacao == null)
+            {
+                return NotFound("Locação não encontrada.");
+            }
+
+            livro.QuantidadeDisponivel++;
+            livro.Locacoes.Remove(locacao);
+
+            return Ok(new { Message = "Livro devolvido com sucesso!", Livro = livro });
         }
     }
 }
