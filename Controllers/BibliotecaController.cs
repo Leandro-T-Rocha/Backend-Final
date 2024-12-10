@@ -29,14 +29,12 @@ namespace Biblioteca.Controllers
             new Livro { Id = 15, Titulo = "Fogo Morto", Autor = "José Lins do Rego", AnoLancamento = 1943, QuantidadeDisponivel = 1 }
         };
 
-        // GET: api/biblioteca
         [HttpGet]
         public ActionResult<List<Livro>> GetLivros()
         {
             return Ok(livrosDisponiveis);
         }
 
-        // GET: api/biblioteca/{id}
         [HttpGet("{id:int}")]
         public ActionResult<Livro> GetLivroById(int id)
         {
@@ -48,7 +46,6 @@ namespace Biblioteca.Controllers
             return Ok(livro);
         }
 
-        // POST: api/biblioteca/locar/{id}
         [HttpPost("locar/{id:int}")]
         public ActionResult LocarLivro(int id, Locacao novaLocacao)
         {
@@ -70,7 +67,6 @@ namespace Biblioteca.Controllers
             return Ok(new { Message = "Livro alugado com sucesso!", Livro = livro, Locacao = novaLocacao });
         }
 
-        // POST: api/biblioteca/devolver/{id}
         [HttpPost("devolver/{id:int}")]
         public ActionResult DevolverLivro(int id, [FromBody] int locacaoId)
         {
